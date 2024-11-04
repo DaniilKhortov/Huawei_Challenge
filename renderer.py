@@ -1,5 +1,5 @@
 import sys
-from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog, QLabel, QLineEdit
+from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QFileDialog, QLabel, QLineEdit, QHBoxLayout
 from PyQt5.QtCore import QTimer, Qt
 from OpenGL.arrays import vbo 
 from PyQt5.QtOpenGL import QGLWidget
@@ -65,7 +65,7 @@ class OpenGLWidget(QGLWidget):
         glMatrixMode(GL_PROJECTION)
         gluPerspective(45, 1.33, 0.1, 50.0)
         glMatrixMode(GL_MODELVIEW)
-        glTranslatef(-1.25, -0.5, -5)
+        glTranslatef(-1.75, -0.5, -5)
         self.timer.timeout.connect(self.updateGL)
         
     def setup_vertex_buffer_object(self):
@@ -191,7 +191,6 @@ class OpenGLWidget(QGLWidget):
         
 # Інтерфейс користувача       
 class MainWindow(QMainWindow):
-
     def __init__(self):
         super().__init__()
         # Налаштування вікна
@@ -201,18 +200,17 @@ class MainWindow(QMainWindow):
         # виклик віджета
         self.opengl_widget = OpenGLWidget(self)
         
-############################################################################################ шлях до файлу .obj
-        self.obj_file = "D:/KPI/huyavei/3D Manualy/result.obj"  
+        self.obj_file = "D:/KPI/huyavei/3D Manualy/result.obj"
         
         # Час останньої зміни файлу
         self.last_mod_time = os.path.getmtime(self.obj_file)
         self.opengl_widget.load_obj_file(self.obj_file)
 
-        #Таймер  перевірки змін файлу
+        # Таймер перевірки змін файлу
         self.update_timer = QTimer(self)
         self.update_timer.timeout.connect(self.check_for_updates)
         
-        #Перевіряти щосекунди
+        # Перевіряти щосекунди
         self.update_timer.start(1000)  
         
         # Ініціалізація й розміщення кнопок
@@ -222,56 +220,60 @@ class MainWindow(QMainWindow):
         
         self.toggle_r_button = QPushButton('Toggle Rotate Mode', self)
         self.toggle_r_button.clicked.connect(self.opengl_widget.toggle_rotate_mode)  
-                
-        rho = 1000 # густина, кг/м³ (для води)
-        cp = 4184  # питома теплоємність, Дж/(кг·К)
-        k_thermal = 0.6  # теплопровідність, Вт/(м·К)
-        mu = 0.001  # динамічна в'язкість, Па·с
-        k_fluid = 1e-12  # проникність рідини (для Дарсі)
-
-        # Параметри сітки і області
-        ne = 200  # кількість елементів (простий приклад)
-        x_lower, x_upper = 0, 1  # межі по x        
-                
-                
+        
         # Ініціалізація полей для вводу
-        self.label_rho = QLabel("X Position:")
+        self.label_rho = QLabel("Густина, кг/м³:")
         self.input_rho = QLineEdit()
-        self.label_cp = QLabel("Y Position:")
+        self.label_cp = QLabel("Питома теплоємність, Дж/(кг·К):")
         self.input_cp = QLineEdit()
-        self.label_k_thermal = QLabel("Z Position:")
+        self.label_k_thermal = QLabel("Теплопровідність, Вт/(м·К):")
         self.input_k_thermal = QLineEdit()
-        self.mu = QLabel("Z Position:")
-        self.mu = QLineEdit()
-        self.k_fluid = QLabel("Z Position:")
-        self.k_fluid = QLineEdit()        
-        self.ne = QLabel("Z Position:")
-        self.ne = QLineEdit()
-        self.x_lower = QLabel("Z Position:")
-        self.x_lower = QLineEdit()
-        self.x_upper = QLabel("Z Position:")
-        self.x_upper = QLineEdit()
+        self.label_mu = QLabel("Динамічна в'язкість, Па·с:")
+        self.input_mu = QLineEdit()
+        self.label_k_fluid = QLabel("Проникність рідини:")
+        self.input_k_fluid = QLineEdit()        
+        self.label_ne = QLabel("Кількість елементів:")
+        self.input_ne = QLineEdit()
+        self.label_x_lower = QLabel("Нижня межа по x :")
+        self.input_x_lower = QLineEdit()
+        self.label_x_upper = QLabel("Верхня межа по x :")
+        self.input_x_upper = QLineEdit()
         
-        #Розміщення віджетів
-        layout = QVBoxLayout()
-        layout.addWidget(self.opengl_widget, stretch=4)
+        # Віджети зліва
+        left_layout = QVBoxLayout()
+        left_layout.addWidget(self.opengl_widget, stretch=4)
+        left_layout.addWidget(self.toggle_button)
+        left_layout.addWidget(self.toggle_r_button)
         
+        # Віджети справа
+        right_layout = QVBoxLayout()
+        right_layout.addWidget(self.label_rho)
+        right_layout.addWidget(self.input_rho)
+        right_layout.addWidget(self.label_cp)
+        right_layout.addWidget(self.input_cp)
+        right_layout.addWidget(self.label_k_thermal)
+        right_layout.addWidget(self.input_k_thermal)
+        right_layout.addWidget(self.label_mu)
+        right_layout.addWidget(self.input_mu)
+        right_layout.addWidget(self.label_k_fluid)
+        right_layout.addWidget(self.input_k_fluid)
+        right_layout.addWidget(self.label_ne)
+        right_layout.addWidget(self.input_ne)
+        right_layout.addWidget(self.label_x_lower)
+        right_layout.addWidget(self.input_x_lower)
+        right_layout.addWidget(self.label_x_upper)
+        right_layout.addWidget(self.input_x_upper)
+        right_layout.addWidget(self.button)
         
-        layout.addWidget(self.opengl_widget)
-        layout.addWidget(self.toggle_button) 
-        layout.addWidget(self.toggle_r_button)  
-        layout.addWidget(self.label_x)
-        layout.addWidget(self.input_x)
-        layout.addWidget(self.label_y)
-        layout.addWidget(self.input_y)
-        layout.addWidget(self.label_z)
-        layout.addWidget(self.input_z)
-        layout.addWidget(self.button)
-
+        # Об'єднання всіх віджетів у горизонтальний макет
+        main_layout = QHBoxLayout()
+        main_layout.addLayout(left_layout, stretch=2)
+        main_layout.addLayout(right_layout, stretch=1)
         
         container = QWidget()
-        container.setLayout(layout)
+        container.setLayout(main_layout)
         self.setCentralWidget(container)
+
         
         
     # Функція перевірки наявності змін у файлі
